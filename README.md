@@ -442,6 +442,7 @@ This docker-compose.yml file defines five services: frontend, backend, celery, c
 
 
 ***Steps to deploy new changes***
+
 1. Pull Latest Images: Pull the latest Docker images from Docker Hub to ensure that you have the most up-to-date versions of your containerized applications.
 `docker-compose pull`
 
