@@ -185,7 +185,7 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: docker push docker-hub-repo/frontend:${{ env.DOCKER_TAG }}
 
-
+```
 ## Backend Django Application:
 
 ```
