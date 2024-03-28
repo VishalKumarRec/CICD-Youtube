@@ -79,9 +79,10 @@ To ensure the success of CI/CD pipelines using Docker, Docker-Compose, Docker Hu
 
 ### Section 6: Real-World Use Cases:
 
+## Frontend React Application:
+
 ***Project Structure:***
 
-## Frontend React Application:
 ```
 frontend/
 ├── public/
@@ -158,7 +159,7 @@ USER root
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-***Github Actions Workflow*** 
+***Github Actions Workflow Frontend*** 
 
 Add a workflow file in your frontend project e.g (*.github/workflow/build-and-push.yml*)
 
@@ -207,6 +208,8 @@ jobs:
 
 ```
 ## Backend Django Application:
+
+***Project Structure:***
 
 ```
 backend/
@@ -316,7 +319,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 ```
 
-***Github Actions Workflow*** 
+***Github Actions Workflow Backend*** 
 
 Add a workflow file in your backend project e.g (*.github/workflow/build-and-push.yml*)
 
