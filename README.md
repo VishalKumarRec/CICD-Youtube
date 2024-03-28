@@ -4,8 +4,28 @@
 
 In today's fast-paced software development landscape, Continuous Integration and Continuous Deployment (CI/CD) 
 practices are essential for maintaining high-quality code and delivering features to users quickly and efficiently. 
-Docker, Docker-Compose, Docker Hub, and GitHub Actions are powerful tools that streamline the development process and automate 
-CI/CD workflows.
+Docker, Docker-Compose, Docker Hub, and GitHub Actions are powerful tools that streamline the development process and automate CI/CD workflows.
+
+In this blog post, we'll explore the process of Dockerizing a full-stack web application consisting of a frontend React application and a backend Django application. We'll cover everything from setting up the project structure to deploying the containerized application using Docker Hub and GitHub Actions for Continuous Integration/Continuous Deployment (CI/CD).
+
+***What We'll Cover:***
+
+ 1. Basics: Docker, Docker-Compose, Docker-Hub and Github actions
+ 2. Project Structure: We'll begin by examining the project structure of both the frontend and backend applications. 
+    This will include understanding where to place Dockerfiles, Workflow file, and other necessary configuration 
+    files.
+ 3. Dockerizing Applications: We'll delve into Dockerizing each component of our web application, including creating 
+   Dockerfiles with appropriate configurations for the React frontend and Django backend.
+
+ 4. Continuous Integration/Continuous Deployment (CI/CD): We'll set up GitHub Actions workflow files to automate the build and deployment process. This will involve configuring workflows to build Docker images and push them to Docker Hub whenever changes are made to the codebase.
+
+5. Deployment with Docker Compose: Finally, we'll deploy our containerized applications on a virtual machine using Docker Compose. We'll see how Docker Compose simplifies the process of managing multi-container Docker applications and orchestrating their deployment.
+
+6. Real-World Use Case:
+
+To demonstrate the concepts discussed in this blog post, we'll consider a real-world use case where we have developed a full-stack web application. Our frontend is built using React.js, providing an interactive user interface, while the backend is powered by Django, offering robust server-side functionality.
+
+The project structure comprises directories for both the frontend and backend applications, each containing source code files, configuration files, and Docker-related files. We'll walk through the steps of Dockerizing each component of the application and integrating Docker Hub and GitHub Actions for automated image builds and deployments.
 
 ### Section 1: Docker Basics
 
@@ -140,8 +160,10 @@ USER root
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-*** Github Actions Workflow *** 
+***Github Actions Workflow*** 
+
 Add a workflow file in your frontend project e.g (*.github/workflow/build-and-push.yml*)
+
 ```
 name: Build and Push Docker Image
 
@@ -296,7 +318,8 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 ```
 
-*** Github Actions Workflow *** 
+***Github Actions Workflow*** 
+
 Add a workflow file in your backend project e.g (*.github/workflow/build-and-push.yml*)
 
 ```
@@ -350,4 +373,83 @@ jobs:
 
 ```
 
+***Ensure that Docker Hub credentials are stored as secrets in the GitHub repository.***
+
+### Docker Compose:
+
+Create a docker-compose.yml file to define the services and configurations for running the containerized applications.
+
+```
+version: '3.4'
+
+services:
+  frontend:
+    image: docker-hub-repo/frontend:${FRONTEND_IMAGE_VERSION:-latest}
+    container_name: frontend
+    env_file:
+      - .docker-env
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+  backend:
+    image: docker-hub-repo/backend:${BACKEND_IMAGE_VERSION:-latest}
+    container_name: backend
+    env_file:
+      - .docker-env
+    command:
+      - /start
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health_check/"]
+      interval: 40s
+      timeout: 60s
+      retries: 3
+      start_period: 60s
+
+  celery:
+    image: docker-hub-repo/backend:${BACKEND_IMAGE_VERSION:-latest}
+    container_name: celery
+    command: celery -A app-name worker --loglevel=info
+    env_file:
+      - .docker-env
+
+  celery-beat:
+    image: docker-hub-repo/backend:${BACKEND_IMAGE_VERSION:-latest}
+    container_name: celery-beat
+    command: celery -A app-name beat --loglevel=info
+    env_file:
+      - .docker-env
+    depends_on:
+      - celery
+
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+networks:
+  default:
+    name: fg-rms-network
+    external: true
+
+```
+This docker-compose.yml file defines five services: frontend, backend, celery, celery-beat and redis, each using the respective Docker images pulled from Docker Hub.
+
+
+***Steps to deploy new changes***
+1. Pull Latest Images: Pull the latest Docker images from Docker Hub to ensure that you have the most up-to-date versions of your containerized applications.
+`docker-compose pull`
+
+2. Start Containers: Start the containers for your applications using Docker Compose. The --force-recreate flag ensures that all containers are recreated, and the --no-deps flag prevents Docker Compose from recreating linked containers.
+`docker-compose up --force-recreate --no-deps -d`
+`
+
+
+## Conclusion:
+
+By following this project structure and incorporating GitHub Actions for CI/CD, developers can automate the build and deployment process of their frontend React and backend Django applications. Using Docker Compose, these containerized applications can be easily deployed and scaled on any environment, including virtual machines.
 
