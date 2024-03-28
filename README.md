@@ -21,9 +21,7 @@ In this blog post, we'll explore the process of Dockerizing a full-stack web app
 
 5. Deployment with Docker Compose: Finally, we'll deploy our containerized applications on a virtual machine using Docker Compose. We'll see how Docker Compose simplifies the process of managing multi-container Docker applications and orchestrating their deployment.
 
-6. Real-World Use Case:
-
-To demonstrate the concepts discussed in this blog post, we'll consider a real-world use case where we have developed a full-stack web application. Our frontend is built using React.js, providing an interactive user interface, while the backend is powered by Django, offering robust server-side functionality.
+6. Real-World Use Case: To demonstrate the concepts discussed in this blog post, we'll consider a real-world use case where we have developed a full-stack web application. Our frontend is built using React.js, providing an interactive user interface, while the backend is powered by Django, offering robust server-side functionality.
 
 The project structure comprises directories for both the frontend and backend applications, each containing source code files, configuration files, and Docker-related files. We'll walk through the steps of Dockerizing each component of the application and integrating Docker Hub and GitHub Actions for automated image builds and deployments.
 
