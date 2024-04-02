@@ -159,15 +159,15 @@ USER root
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-In above docker file we are building a the production version of source code using command
+The Dockerfile provided compiles the production version of the source code by executing the command:
 ```console
 RUN yarn build
 ```
-then, we are putitng the build in the nginx static page serving directory.
+Afterwards, it places the resulting build into the directory used by Nginx to serve static pages:
+
 ```console
 COPY --from=builder /app/dist .
 ```
-
 
 ***Github Actions Workflow Frontend*** 
 
@@ -216,11 +216,13 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: docker push docker-hub-repo/frontend:${{ env.DOCKER_TAG }}
 ```
-Above github action file is using Dockerfile we defined in the project directory to build the image and we are using 
+The GitHub Actions workflow provided utilizes the Dockerfile located within the project directory to construct the Docker image. After the image is built, the action proceeds to push it to the Docker Hub repository using the command:
+
 ```console
 docker push docker-hub-repo/frontend:${{ env.DOCKER_TAG }}
 ```
-to push the images to our docker hub repository.
+
+This command instructs Docker to push the built image tagged with a specific version, identified by the environment variable DOCKER_TAG, to the specified Docker Hub repository.
 
 ## Backend Django Application:
 
@@ -334,10 +336,17 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 ```
 
-Above dockerfile if used to build the image of our backend source. We are seperating builder stage and runner stage to reduce consecutive build timing.
-As, we downloading all the wheels files first then installing wheel files at runner stage this is helping us to create a cache layer of the project dependency.
- 
+This Dockerfile design called multi-stage builds. By separating the build process into distinct stages, you can take advantage of Docker's layer caching mechanism to improve build performance and reduce image size.
 
+1. ***Builder Stage***: This stage is responsible for preparing the dependencies and artifacts needed for your backend application. By downloading all the wheel files and performing any other build-time operations here, you create a cache layer of the project dependencies.
+
+2. ***Runner Stage***: In this stage, you copy the necessary artifacts, such as the wheel files, from the builder stage and then install them. Since the wheel files are already downloaded and available, Docker can reuse the cached layers from the builder stage, reducing consecutive build times.
+
+This approach effectively minimizes the need to reinstall dependencies during each build, as long as the dependencies listed in requirements.txt remain unchanged. It's particularly beneficial for projects with large dependency trees or slow internet connections, as it helps optimize build performance.
+
+By using multi-stage builds, you can streamline your Dockerfile and improve the efficiency of your Docker image builds. Additionally, it helps maintain consistency and repeatability across different environments.
+
+ 
 ***Github Actions Workflow Backend*** 
 
 Add a workflow file in your backend project e.g (*.github/workflow/build-and-push.yml*)
@@ -391,21 +400,20 @@ jobs:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 ```
-Above github action file is using Dockerfile we defined in the project directory to build the image and we are using 
-```console
-        with:
-          context: .
-          file: ./Dockerfile
-          tags: docker-hub-repo/backend:${{ env.DOCKER_TAG }}
-          push: true
-        env:
-          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-```
-to push the images to our docker hub repository.
+The GitHub Actions workflow we have added is using the Dockerfile located in the project directory to build the Docker image. After building the image, it pushes the image to a Docker Hub repository. Let's break down the important parts:
+
+1. ***Building the Docker Image***:
+  -context: .: Specifies the build context, which is the path to the directory containing the Dockerfile. In this case, it's set to the root of the project directory.
+  -file: ./Dockerfile: Specifies the path to the Dockerfile within the build context.
+  -tags: docker-hub-repo/backend:${{ env.DOCKER_TAG }}: Tags the built image with a specific tag. The tag is derived from the DOCKER_TAG environment variable.
+  -push: true: Indicates that the built image should be pushed to a remote registry after the build process completes.
+
+2. ***Docker Hub Credentials***:
+  -DOCKERHUB_USERNAME and DOCKERHUB_TOKEN are environment variables used to authenticate with Docker Hub for pushing the image. They are retrieved from GitHub Secrets to keep sensitive information secure.
+
+This workflow automates the process of building and pushing Docker images to a Docker Hub repository whenever changes are pushed to the repository. It's a convenient way to manage Docker images as part of a continuous integration/continuous deployment (CI/CD) pipeline.
 
 ***Ensure that Docker Hub credentials are stored as secrets in the GitHub repository.***
-
 
 
 ### Docker Compose:
@@ -470,7 +478,15 @@ networks:
     external: true
 
 ```
-This docker-compose.yml file defines five services: frontend, backend, celery, celery-beat and redis, each using the respective Docker images pulled from Docker Hub.
+The provided docker-compose.yml file sets up five services, each corresponding to a component of the application:
+
+1. Frontend (core frontend container)
+2. Backend (core backend container)
+3. Celery (to run long running task)
+4. Celery-beat (to run periodic tasks)
+5. Redis (as a message broker service for celery)
+
+These services are configured to use Docker images retrieved directly from Docker Hub, abstracting away the source code details.
 
 
 ***Steps to deploy new changes***
