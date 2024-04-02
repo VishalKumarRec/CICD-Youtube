@@ -159,6 +159,16 @@ USER root
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
+In above docker file we are building a the production version of source code using command
+```console
+RUN yarn build
+```
+then, we are putitng the build in the nginx static page serving directory.
+```console
+COPY --from=builder /app/dist .
+```
+
+
 ***Github Actions Workflow Frontend*** 
 
 Add a workflow file in your frontend project e.g (*.github/workflow/build-and-push.yml*)
@@ -205,8 +215,13 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         run: docker push docker-hub-repo/frontend:${{ env.DOCKER_TAG }}
-
 ```
+Above github action file is using Dockerfile we defined in the project directory to build the image and we are using 
+```console
+docker push docker-hub-repo/frontend:${{ env.DOCKER_TAG }}
+```
+to push the images to our docker hub repository.
+
 ## Backend Django Application:
 
 ***Project Structure:***
@@ -319,6 +334,10 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 ```
 
+Above dockerfile if used to build the image of our backend source. We are seperating builder stage and runner stage to reduce consecutive build timing.
+As, we downloading all the wheels files first then installing wheel files at runner stage this is helping us to create a cache layer of the project dependency.
+ 
+
 ***Github Actions Workflow Backend*** 
 
 Add a workflow file in your backend project e.g (*.github/workflow/build-and-push.yml*)
@@ -371,10 +390,23 @@ jobs:
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-
 ```
+Above github action file is using Dockerfile we defined in the project directory to build the image and we are using 
+```console
+        with:
+          context: .
+          file: ./Dockerfile
+          tags: docker-hub-repo/backend:${{ env.DOCKER_TAG }}
+          push: true
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+```
+to push the images to our docker hub repository.
 
 ***Ensure that Docker Hub credentials are stored as secrets in the GitHub repository.***
+
+
 
 ### Docker Compose:
 
