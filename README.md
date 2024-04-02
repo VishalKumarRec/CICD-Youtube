@@ -83,7 +83,7 @@ To ensure the success of CI/CD pipelines using Docker, Docker-Compose, Docker Hu
 
 ***Project Structure:***
 
-```
+```tree
 frontend/
 ├── public/
 │   ├── index.html
