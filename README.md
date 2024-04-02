@@ -105,7 +105,7 @@ frontend/
 - **.dockerignore:** Specifies files and directories to be excluded from the Docker build context.
 
 ### Dockerfile
-```
+```yaml
 # Builder Stage
 FROM node:21.6.0 as builder
 
@@ -163,7 +163,7 @@ CMD ["nginx", "-g", "daemon off;"]
 
 Add a workflow file in your frontend project e.g (*.github/workflow/build-and-push.yml*)
 
-```
+```yaml
 name: Build and Push Docker Image
 
 on:
@@ -211,7 +211,7 @@ jobs:
 
 ***Project Structure:***
 
-```
+```tree
 backend/
 ├── myapp/
 │   ├── models.py
@@ -229,7 +229,7 @@ backend/
 - **.dockerignore:** Specifies files and directories to be excluded from the Docker build context.
 
 ### Dockerfile
-```
+```yaml
 # === Stage 1: Python Build Stage ===
 FROM python:3.9.18-slim-bullseye AS python-build-stage
 
@@ -323,7 +323,7 @@ ENTRYPOINT ["/entrypoint.sh"]
 
 Add a workflow file in your backend project e.g (*.github/workflow/build-and-push.yml*)
 
-```
+```yaml
 name: Build and Push Docker Image
 
 on:
@@ -444,10 +444,14 @@ This docker-compose.yml file defines five services: frontend, backend, celery, c
 ***Steps to deploy new changes***
 
 1. Pull Latest Images: Pull the latest Docker images from Docker Hub to ensure that you have the most up-to-date versions of your containerized applications.
-`docker-compose pull`
+```console
+docker-compose pull
+```
 
 2. Start Containers: Start the containers for your applications using Docker Compose. The --force-recreate flag ensures that all containers are recreated, and the --no-deps flag prevents Docker Compose from recreating linked containers.
-`docker-compose up --force-recreate --no-deps -d`
+```console
+docker-compose up --force-recreate --no-deps -d
+```
 `
 
 
