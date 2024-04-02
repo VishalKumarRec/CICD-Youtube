@@ -380,7 +380,7 @@ jobs:
 
 Create a docker-compose.yml file to define the services and configurations for running the containerized applications.
 
-```
+```yaml
 version: '3.4'
 
 services:
